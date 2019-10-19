@@ -34,7 +34,7 @@ DEFAULT_OPTS = [
                help='Format of the image list.'),
     cfg.StrOpt('store_dir', defaults='/var/lib/imagekeeper',
                help='Directory where the images are downloaded and stored.'),
-    cfg.StrOpt('work_dir', defaults='/tmp',
+    cfg.StrOpt('work_dir', defaults='/var/lib/imagekeeper/tmp',
                help='Work directory where image are downloaded and '
                     'converted.'),
 ]
