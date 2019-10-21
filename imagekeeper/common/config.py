@@ -27,14 +27,14 @@ DEFAULT_OPTS = [
     cfg.StrOpt('cloud_list', default='/etc/imagekeeper/clouds.json',
                help='JSON File containing the configuration options '
                     'required to connect to the cloud backends.'),
-    cfg.StrOpt('image_list', defaults='/etc/imagekeeper/image.list',
+    cfg.StrOpt('image_list', default='/etc/imagekeeper/image.list',
                help='File containing the list of images to synchronize over '
                     'the clouds.'),
-    cfg.StrOpt('image_format', defaults='helixnebula',
+    cfg.StrOpt('image_format', default='helixnebula',
                help='Format of the image list.'),
-    cfg.StrOpt('store_dir', defaults='/var/lib/imagekeeper',
+    cfg.StrOpt('store_dir', default='/var/lib/imagekeeper',
                help='Directory where the images are downloaded and stored.'),
-    cfg.StrOpt('work_dir', defaults='/var/lib/imagekeeper/tmp',
+    cfg.StrOpt('work_dir', default='/var/lib/imagekeeper/tmp',
                help='Work directory where image are downloaded and '
                     'converted.'),
 ]

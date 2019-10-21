@@ -31,10 +31,10 @@ KNOWN_EXCEPTIONS = (RuntimeError,
                     ValueError)
 
 
-def fail(e):
+def fail(err):
     global KNOWN_EXCEPTIONS
-    return_code = KNOWN_EXCEPTIONS.index(type(e)) + 1
-    sys.stderr.write("ERROR: %s\n" % e)
+    return_code = KNOWN_EXCEPTIONS.index(type(err)) + 1
+    sys.stderr.write("ERROR: %s\n" % err)
     sys.exit(return_code)
 
 
@@ -42,13 +42,12 @@ def main():
     """ImageKeeper main script
     """
     try:
-        config.parse_args()
-        config.set_config_defaults()
+        config.parse_args(sys.argv)
         log.setup(CONF, 'imagekeeper')
 
         LOG.info('Starting imagekeeper')
-    except KNOWN_EXCEPTIONS as e:
-        fail(e)
+    except KNOWN_EXCEPTIONS as err:
+        fail(err)
 
 
 if __name__ == "__main__":
