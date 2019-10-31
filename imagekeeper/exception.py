@@ -54,6 +54,12 @@ class ImageKeeperException(Exception):
         super(ImageKeeperException, self).__init__(message)
 
 
+class FunctionNotImplemented(ImageKeeperException):
+    """Exception raised when a function is not implemented.
+    """
+    msg_format = "The function you have requested has not been implemented."
+
+
 class BackendNotFound(ImageKeeperException):
     """Exception raised when a backend is not found.
     """
