@@ -22,3 +22,13 @@ def convert_ram(ram_value):
     """Convert ram in bytes to the nearest upper integer in megabytes
     """
     return int(math.ceil(ram_value/1048576))
+
+
+def validate_options(config, options):
+    """Return the list of missing options
+    """
+    missing_options = []
+    for option in options:
+        if option not in config:
+            missing_options.append(option)
+    return missing_options

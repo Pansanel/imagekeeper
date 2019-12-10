@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""ImageKeeper exception subclasses"""
+"""Imagekeeper exception subclasses"""
 
 import sys
 
@@ -25,8 +25,8 @@ LOG = log.getLogger(__name__)
 CONF = cfg.CONF
 
 
-class ImageKeeperException(Exception):
-    """Base ImageKeeper Exception
+class ImagekeeperException(Exception):
+    """Base Imagekeeper Exception
 
     To correctly use this class, inherit from it and define a 'message'
     property. That message will get printf'd with the keyboard arguments
@@ -51,22 +51,30 @@ class ImageKeeperException(Exception):
 
                 six.reraise(exc_info[0], exc_info[1], exc_info[2])
 
-        super(ImageKeeperException, self).__init__(message)
+        super(ImagekeeperException, self).__init__(message)
 
 
-class FunctionNotImplemented(ImageKeeperException):
+class FunctionNotImplemented(ImagekeeperException):
     """Exception raised when a function is not implemented.
     """
-    msg_format = "The function you have requested has not been implemented."
+    msg_fmt = "The function you have requested has not been implemented."
 
 
-class BackendNotFound(ImageKeeperException):
+class BackendNotFound(ImagekeeperException):
     """Exception raised when a backend is not found.
     """
     msg_fmt = "Backend %(backend) could not be found: %(exception)s."
 
 
-class BadBackendConfiguration(ImageKeeperException):
-    """Exception raised when the backend cannot be configured.
+class BackendConfigurationMissingOption(ImagekeeperException):
+    """Exception raised when an option required to configure the
+       backend cannot be found.
     """
-    msg_fmt = "Backend %(backend) could not be configured: %(exception)s."
+    msg_fmt = ("Backend %(backend) could not be configured. " +
+               "Required configuration options are missing: %(options).")
+
+
+class UnknownAuthMethod(ImagekeeperException):
+    """Exception raised when the auth method is unknown.
+    """
+    msg_fmt = "Authentication type %(auth_type) is unknown: %(exception)s."
