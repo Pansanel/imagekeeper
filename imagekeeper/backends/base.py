@@ -28,43 +28,38 @@ CONF = cfg.CONF
 
 @six.add_metaclass(abc.ABCMeta)
 class Backend(object):
-    """ImageKeeper AbException
+    """ImageKeeper Backend Metaclass.
 
-    To correctly use this class, inherit from it and define a 'message'
-    property. That message will get printf'd with the keyboard arguments
-    provided to the constructor.
+    To correctly use this class, inherit from it and implement
+    all functions.
     """
+
     @abc.abstractmethod
     def connect(self):
-        """Connect to the backend"""
+        """Connect to the backend."""
         raise exception.FunctionNotImplemented()
 
     @abc.abstractmethod
-    def get_image_list(self, **kwargs):
-        """Retrieve the image list from the backend
-        """
+    def get_appliance_list(self, **kwargs):
+        """Retrieve the appliance list from the backend."""
         raise exception.FunctionNotImplemented()
 
     @abc.abstractmethod
-    def add_image(self, **kwargs):
-        """Add an image
-        """
+    def add_appliance(self, **kwargs):
+        """Add an appliance."""
         raise exception.FunctionNotImplemented()
 
     @abc.abstractmethod
-    def depricate_image(self, **kwargs):
-        """Set a image as depricated
-        """
+    def deprecate_appliance(self, **kwargs):
+        """Set an appliance as deprecated."""
         raise exception.FunctionNotImplemented()
 
     @abc.abstractmethod
-    def delete_image(self, **kwargs):
-        """Try to delete depricated images
-        """
+    def delete_appliance(self, **kwargs):
+        """Try to delete deprecated appliances."""
         raise exception.FunctionNotImplemented()
 
     @abc.abstractmethod
-    def update_image(self, **kwargs):
-        """Update an image
-        """
+    def update_appliance(self, **kwargs):
+        """Update an appliance."""
         raise exception.FunctionNotImplemented()
