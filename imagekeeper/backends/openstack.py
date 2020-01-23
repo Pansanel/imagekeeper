@@ -29,30 +29,22 @@ CONF = cfg.CONF
 
 
 class OpenStackBackend(base.Backend):
-    """OpenStack backend
-    """
+    """OpenStack backend."""
+
     def __init__(self, config):
-        """Class initialisation"""
+        """Class initialisation.
+
+        :param config: the configuration data
+        :type config: dict
+        """
         self.config = config
 
-    def connect(self):
-        """Manage authentification depending the authentication type
-        """
-        auth_type = self.config['auth_type']
-        loader = loading.get_plugin_loader(auth_type)
-        auth = loader.load_from_options(**self._auth_options(auth_type))
-        return session.Session(auth=auth)
-
-    def _auth_options(self, auth_type):
-        LOG.debug("Requesting auth plugin '%s'" % auth_type)
-        if auth_type == "v3oidcaccesstoken":
-            return self._v3oidcaccesstoken_options()
-        if auth_type == "v3password":
-            return self._v3password_options()
-
-        raise exception.UnknownAuthMethod(auth_type=auth_type)
-
     def _v3oidcaccesstoken_options(self):
+        """Return the required options for OIDC auth_type.
+
+        :return: the required options
+        :rtype: dict
+        """
         required_options = ['auth_url', 'project_name',
                             'project_domain_name', 'oidc_access_token'
                             'oidc_identity_provider', 'oidc_protocol']
@@ -75,6 +67,11 @@ class OpenStackBackend(base.Backend):
         )
 
     def _v3password_options(self):
+        """Return the required options for password auth_type.
+
+        :return: the required options
+        :rtype: dict
+        """
         required_options = ['auth_url', 'project_name',
                             'project_domain_name', 'oidc_access_token'
                             'oidc_identity_provider', 'oidc_protocol']
@@ -96,28 +93,90 @@ class OpenStackBackend(base.Backend):
             options=missing_options
         )
 
-    def get_image_list(self):
+    def _auth_options(self, auth_type):
+        """Return the options for OpenStack authentificatio.
+
+        :param auth_type: the authenfication type
+        :type auth_type: string
+        :return: the required options
+        :rtype: dict
+        """
+        LOG.debug("Requesting auth plugin '%s'" % auth_type)
+        if auth_type == "v3oidcaccesstoken":
+            return self._v3oidcaccesstoken_options()
+        if auth_type == "v3password":
+            return self._v3password_options()
+
+        raise exception.UnknownAuthMethod(auth_type=auth_type)
+
+    def connect(self):
+        """Manage authentification depending the authentication type.
+
+        :return: an OpenStack session
+        :rtype: session.Session
+        """
+        auth_type = self.config['auth_type']
+        loader = loading.get_plugin_loader(auth_type)
+        auth = loader.load_from_options(**self._auth_options(auth_type))
+        return session.Session(auth=auth)
+
+    def get_image_list(self, properties=None):
+        """Return the list of images.
+
+        :param properties: a list of properties to use for filtering
+        :type properties: dict
+        :return: a list of appliances
+        :rtype: list
+        """
         image_list = {}
         glance = glanceclient.Client(session=self.connect())
         try:
+            # TODO: add the ability to filter against private images
             img_generator = glance.images.list()
             image_list = list(img_generator)
         except Exception as err:
-            raise.GlanceImageListError(err)
-            LOG.error("Not authorized to retrieve the image list from "
-                      "the following backend: %s" % self.config['backend_name'])
-            LOG.exception(err)
+            raise exception.UnknownError(err)
         return image_list
 
+    def add_appliance(self, appliance):
+        """Add an appliance."""
+        glance = glanceclient.Client(session=self.connect())
+        LOG.info('Adding appliance: ' + appliance['title'])
+        filename = appliance['location']
+        image_format = appliance['format']
+        image_properties = {}
+        min_ram = 0
+        if appliance.min_ram:
+            min_ram = appliance.min_ram
+        if CONF.min_ram > min_ram:
+            min_ram = CONF.min_ram
+        try:
+            image_data = open(filename, 'rb')
+        except IOError as err:
+            LOG.error("Cannot open image file: '%s'" % filename)
+            LOG.exception(err)
+            return None
 
-    def add_image(self, image):
-        pass
+        image_properties['IK_STATUS'] = 'ACTIVE'
 
-    def depricate_image(self, image_id):
-        pass
+        LOG.debug(
+            "Creating image '%s' (format: '%s', "
+            "properties %s)" % (appliance.title,
+                                str.lower(image_format),
+                                image_properties)
+        )
 
-    def delete_image(self, image_id):
-        pass
+        glance_image = glance.images.create(
+            name=appliance['title'],
+            disk_format=str.lower(image_format),
+            container_format="bare",
+            visibility=CONF.image_visibility,
+        )
+        glance.images.upload(glance_image.id, image_data)
+        glance.images.update(glance_image.id, **image_properties)
+        if (min_ram > 0):
+            glance.images.update(glance_image.id, min_ram=min_ram)
 
-    def upate_image(self, image):
-        pass
+        image_data.close()
+
+        return glance_image.id
