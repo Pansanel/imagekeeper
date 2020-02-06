@@ -31,12 +31,13 @@ CONF = cfg.CONF
 class OpenStackBackend(base.Backend):
     """OpenStack backend."""
 
-    def __init__(self, config):
+    def __init__(self, cloud_id, config):
         """Class initialisation.
 
         :param config: the configuration data
         :type config: dict
         """
+        self.cloud_id = cloud_id
         self.config = config
 
     def _v3oidcaccesstoken_options(self):
@@ -128,10 +129,8 @@ class OpenStackBackend(base.Backend):
         :return: a list of appliances
         :rtype: list
         """
-        image_list = {}
         glance = glanceclient.Client(session=self.connect())
         try:
-            # TODO: add the ability to filter against private images
             img_generator = glance.images.list()
             image_list = list(img_generator)
         except Exception as err:
@@ -139,7 +138,13 @@ class OpenStackBackend(base.Backend):
         return image_list
 
     def add_appliance(self, appliance):
-        """Add an appliance."""
+        """Add an appliance.
+
+        :param appliance: an appliance to add to Glance
+        :type appliance: dict
+        :return: True if the appliance could be added successfully
+        :rtype: bool
+        """
         glance = glanceclient.Client(session=self.connect())
         LOG.info('Adding appliance: ' + appliance['title'])
         filename = appliance['location']
@@ -155,9 +160,9 @@ class OpenStackBackend(base.Backend):
         except IOError as err:
             LOG.error("Cannot open image file: '%s'" % filename)
             LOG.exception(err)
-            return None
+            return False
 
-        image_properties['IK_STATUS'] = 'ACTIVE'
+        image_properties['IK_STATUS'] = 'ENABLED'
 
         LOG.debug(
             "Creating image '%s' (format: '%s', "
@@ -179,4 +184,127 @@ class OpenStackBackend(base.Backend):
 
         image_data.close()
 
-        return glance_image.id
+        return True
+
+    def deprecate_appliance(self, appliance_id):
+        """Mark an appliance in glance as deprecated.
+
+        :param appliance_id: the id of the appliance
+        :type appliance_id: str
+        :return: True if the appliance has been successfully marked
+        :rtype: bool
+        """
+        LOG.info("Marking appliance '%s' as deprecated" % appliance_id)
+        try:
+            glance = glanceclient.Client(session=self.connect())
+
+            glance_images = utils.find_images(glance, appliance_id)
+            if not glance_images:
+                LOG.error(
+                    "Cannot mark image for removal: image '%s' "
+                    "not found" % appliance_id
+                )
+                return False
+        except Exception as err:
+            LOG.error("Cannot set the appliance '%s' as deprecated "
+                      " for the backend '%s'" % (appliance_id, self.cloud_id))
+            LOG.exception(err)
+            raise exception.UnknownError(err)
+        properties = {'IK_STATUS': 'DISABLED'}
+        for image in glance_images:
+            LOG.debug("Marking image for removal: '%s'" % image.id)
+            glance.images.update(image.id, visibility='private', **properties)
+        return True
+
+    def delete_appliances(self):
+        """Remove all appliances marked as DISABLED.
+
+        :return: True if the cleaning was successfull
+        :rtype: bool
+        """
+        LOG.info("Cleaning up appliances")
+        glance = glanceclient.Client(session=self.connect())
+        try:
+            img_generator = glance.images.list()
+            image_list = list(img_generator)
+        except Exception as err:
+            LOG.error("Could not retrieve the image list for "
+                      "the backend '%s'" % self.cloud_id)
+            LOG.exception(err)
+            return False
+
+        is_deleted = True
+        for image in image_list:
+            if image.get('IK_STATUS') == 'DISABLED':
+                try:
+                    LOG.debug("Deleting image '%s'" % image['id'])
+                    glance.images.delete(image['id'])
+                    LOG.debug(
+                        "Image '%s' successfully deleted" % image['id']
+                    )
+                except Exception as err:
+                    LOG.error(
+                        "Image '%s' cannot be deleted" % image['id']
+                    )
+                    LOG.error(err)
+                    is_deleted = False
+        return is_deleted
+
+    def update_appliance(self, appliance):
+        """Update an appliance stored in glance.
+
+        :param appliance:
+        :type appliance:
+        :return: True if the appliance could be successfully added
+        :rtype: bool 
+        """
+        LOG.info("Updating appliance '%s'" % appliance['id'])
+        if not self.deprecate_appliance(appliance['id']):
+            LOG.error(
+                "Could not mark appliance as deprecated. Appliance will "
+                "not be updated"
+            )
+            return False
+        LOG.debug("Old version of the '%s' appliance has been marked for "
+                  "removal" % appliance.identifier)
+        LOG.debug("Creating new release of the appliance")
+        image_id = self.add_appliance(appliance)
+        LOG.debug("The glance image '%s' has been created" % image_id)
+        return True
+
+    def list_appliance(self, tag_name=None, tag_value=None):
+        """List the appliance given a specific tag and value.
+
+        :param tag_name: the name of the tag to filter against
+        :type tag_name: str
+        :param tag_value: the value of the tag
+        :type tag_value: str
+        :return: the list of registered appliances
+        :rtype: list
+        """
+        LOG.debug("List appliances having the tag '%s' set with the "
+                  "value '%s'" % (tag_name, tag_value))
+        image_list = []
+        glance = glanceclient.Client(session=self.connect())
+
+        # On some Cloud, the user may not be allowed to list the
+        # images. It is required to manage this case.
+        try:
+            img_generator = glance.images.list()
+            image_list = list(img_generator)
+        except Exception as err:
+            LOG.error("Not authorized to retrieve the image list from "
+                      "this cloud: %s" % self.cloud_id)
+            LOG.exception(err)
+            return image_list
+        for image in image_list:
+            if image.get(tag_name) == tag_value:
+                if image.get('IMAGE_STATUS') == 'DISABLED':
+                    LOG.debug("Skipping deprecated image %s" % image['id'])
+                else:
+                    LOG.debug(
+                        "Appending image with id '%s' to the image "
+                        "list." % (image['id'])
+                    )
+                    image_list.append(image['id'])
+        return image_list
