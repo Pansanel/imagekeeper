@@ -62,17 +62,24 @@ class FunctionNotImplemented(ImagekeeperException):
     msg_fmt = "The function you have requested has not been implemented."
 
 
+class BackendFileNotFound(ImagekeeperException):
+    """Exception raised when the backend file is not found."""
+
+    msg_fmt = ("The backend file %(cloud_config) could not be " +
+               "found: %(exception)s.")
+
+
+class NoBackendDefined(ImagekeeperException):
+    """Exception raised when no backend is defined."""
+
+    msg_fmt = ("No backend is defined in the file %(cloud_config): "
+               "%(exception)s.")
+
+
 class BackendNotFound(ImagekeeperException):
     """Exception raised when a backend is not found."""
 
     msg_fmt = "Backend %(backend) could not be found: %(exception)s."
-
-
-class BackendFileNotFound(ImagekeeperException):
-    """Exception raised when a backend is not found."""
-
-    msg_fmt = ("The backend file %(cloud_config) could not be " +
-               "found: %(exception)s.")
 
 
 class BackendConfigurationMissingOption(ImagekeeperException):
@@ -80,6 +87,27 @@ class BackendConfigurationMissingOption(ImagekeeperException):
 
     msg_fmt = ("Backend %(backend) could not be configured. " +
                "Required configuration options are missing: %(options).")
+
+
+class ImageFileNotFound(ImagekeeperException):
+    """Exception raised when the image file is not found."""
+
+    msg_fmt = ("The image file %(image_list) could not be " +
+               "found: %(exception)s.")
+
+
+class NoImageFound(ImagekeeperException):
+    """Exception raised when a backend is not found."""
+
+    msg_fmt = ("The backend file %(cloud_config) could not be " +
+               "found: %(exception)s.")
+
+
+class ImageListFormatNotFound(ImagekeeperException):
+    """Exception raised when a image list format is not found."""
+
+    msg_fmt = ("Image list format %(image_list_format) could not be "
+               "found: %(exception)s.")
 
 
 class UnknownAuthMethod(ImagekeeperException):
