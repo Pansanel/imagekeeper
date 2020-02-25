@@ -15,6 +15,7 @@
 
 """Starter script for ImageKeeper."""
 
+import os
 import sys
 
 from oslo_config import cfg
@@ -22,6 +23,7 @@ from oslo_log import log
 
 from imagekeeper.common import config
 from imagekeeper.common import exception
+from imagekeeper.backends import parser as backend_parser
 
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
@@ -39,13 +41,21 @@ def fail(err):
 
 
 def main():
-    """ImageKeeper main script
-    """
+    """ImageKeeper main script."""
     try:
         config.parse_args(sys.argv)
         log.setup(CONF, 'imagekeeper')
 
         LOG.info('Starting imagekeeper')
+
+        # Read the content of the backend directory
+        if not os.path.isfile(CONF.cloud_config):
+            raise exception.BackendFileError(
+                cloud_config=CONF.cloud_config,
+            )
+        backend_list = backend_parser.parse(CONF.cloud_config)
+        for backend in backend_list:
+            print("synchronize with %s" % backend['name'])
     except KNOWN_EXCEPTIONS as err:
         fail(err)
 
