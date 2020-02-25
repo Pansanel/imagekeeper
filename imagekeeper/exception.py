@@ -26,15 +26,17 @@ CONF = cfg.CONF
 
 
 class ImagekeeperException(Exception):
-    """Base Imagekeeper Exception
+    """Base Imagekeeper Exception.
 
     To correctly use this class, inherit from it and define a 'message'
     property. That message will get printf'd with the keyboard arguments
     provided to the constructor.
     """
+
     msg_fmt = "An unknown exception occurred."
 
     def __init__(self, message=None, **kwargs):
+        """Initialize the ImagekeeperException class."""
         self.kwargs = kwargs
 
         if not message:
@@ -55,26 +57,32 @@ class ImagekeeperException(Exception):
 
 
 class FunctionNotImplemented(ImagekeeperException):
-    """Exception raised when a function is not implemented.
-    """
+    """Exception raised when a function is not implemented."""
+
     msg_fmt = "The function you have requested has not been implemented."
 
 
 class BackendNotFound(ImagekeeperException):
-    """Exception raised when a backend is not found.
-    """
+    """Exception raised when a backend is not found."""
+
     msg_fmt = "Backend %(backend) could not be found: %(exception)s."
 
 
+class BackendFileNotFound(ImagekeeperException):
+    """Exception raised when a backend is not found."""
+
+    msg_fmt = ("The backend file %(cloud_config) could not be " +
+               "found: %(exception)s.")
+
+
 class BackendConfigurationMissingOption(ImagekeeperException):
-    """Exception raised when an option required to configure the
-       backend cannot be found.
-    """
+    """Exception raised when a required option is missing."""
+
     msg_fmt = ("Backend %(backend) could not be configured. " +
                "Required configuration options are missing: %(options).")
 
 
 class UnknownAuthMethod(ImagekeeperException):
-    """Exception raised when the auth method is unknown.
-    """
+    """Exception raised when the auth method is unknown."""
+
     msg_fmt = "Authentication type %(auth_type) is unknown: %(exception)s."
