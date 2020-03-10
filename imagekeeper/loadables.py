@@ -42,20 +42,24 @@ import inspect
 import os
 import sys
 
-from oslo_utils import importutils
-
-from nova import exception
+from imagekeeper import importutils
+from imagekeeper.common import exception
 
 
 class BaseLoader(object):
+    """Base class for all loadable object."""
+
     def __init__(self, loadable_cls_type):
+        """Initialize the class."""
         mod = sys.modules[self.__class__.__module__]
         self.path = os.path.abspath(mod.__path__[0])
         self.package = mod.__package__
         self.loadable_cls_type = loadable_cls_type
 
     def _is_correct_class(self, obj):
-        """Return whether an object is a class of the correct type and
+        """Check if the class is correct.
+
+        Return whether an object is a class of the correct type and
         is not prefixed with an underscore.
         """
         return (inspect.isclass(obj) and
@@ -76,7 +80,9 @@ class BaseLoader(object):
         return classes
 
     def get_all_classes(self):
-        """Get the classes of the type we want from all modules found
+        """Return the list of classes from modules in a directory.
+
+        Get the classes of the type we want from all modules found
         in the directory that defines this class.
         """
         classes = []
@@ -96,10 +102,12 @@ class BaseLoader(object):
         return classes
 
     def get_matching_classes(self, loadable_class_names):
-        """Get loadable classes from a list of names.  Each name can be
-        a full module path or the full path to a method that returns
-        classes to use.  The latter behavior is useful to specify a method
-        that returns a list of classes to use in a default case.
+        """Get loadable classes from a list of names.
+
+        Each name can be a full module path or the full path to a
+        method that returns classes to use.  The latter behavior is
+        useful to specify a method that returns a list of classes to
+        use in a default case.
         """
         classes = []
         for cls_name in loadable_class_names:
