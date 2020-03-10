@@ -12,8 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-""" ImageKeeper configuration options.
-"""
+"""ImageKeeper configuration options."""
 
 
 from oslo_config import cfg
@@ -43,7 +42,10 @@ cfg.CONF.register_opts(DEFAULT_OPTS)
 
 
 def parse_args(argv, default_config_files=None):
-    """Parse arguments
+    """Parse command line arguments.
+
+    :param default_config_files: the default config files
+    :type default_config_files: str
     """
     cfg.CONF(argv[1:],
              project='imagekeeper',
@@ -52,7 +54,10 @@ def parse_args(argv, default_config_files=None):
 
 
 def list_opts():
-    """List options
+    """List available options.
+
+    :return: the list of available options
+    :rtype: list
     """
     return [
         ('DEFAULT', DEFAULT_OPTS),
