@@ -24,18 +24,18 @@ log.register_options(cfg.CONF)
 
 DEFAULT_OPTS = [
     cfg.StrOpt('cloud_list', default='/etc/imagekeeper/clouds.json',
-               help='JSON File containing the configuration options '
+               help='JSON file containing the configuration options '
                     'required to connect to the cloud backends.'),
     cfg.StrOpt('image_list', default='/etc/imagekeeper/image.list',
                help='File containing the list of images to synchronize over '
                     'the clouds.'),
-    cfg.StrOpt('image_format', default='helixnebula',
+    cfg.StrOpt('image_list_format', default='helixnebula',
                help='Format of the image list.'),
     cfg.StrOpt('store_dir', default='/var/lib/imagekeeper',
-               help='Directory where the images are downloaded and stored.'),
+               help='Directory where the VM images are stored.'),
     cfg.StrOpt('work_dir', default='/var/lib/imagekeeper/tmp',
-               help='Work directory where image are downloaded and '
-                    'converted.'),
+               help='Work directory where the VM images are downloaded '
+                    'and processed.'),
 ]
 
 cfg.CONF.register_opts(DEFAULT_OPTS)
