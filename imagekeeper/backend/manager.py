@@ -12,10 +12,24 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""Class for managing backend configuration class."""
-
-from imagekeeper import exception
+"""Class for managing backends."""
 
 
-def parser():
-    return
+class BackendManager(object):
+    """A dummy class to manage backends."""
+
+    def __init__(self, config_file=None):
+        """Initialize the class."""
+        self.backends = {}
+        if config_file:
+            # parse config file
+            self._parse_config_file(config_file)
+
+    def get_backends(self):
+        """Return the backend list."""
+        return self.backends
+
+    def _parse_config_file(self, config_file):
+        """Parse the backend configuration file."""
+        # TODO: Write the parsing function
+        pass
