@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright 2019 CNRS and University of Strasbourg
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -23,42 +23,47 @@ from oslo_log import log
 
 from imagekeeper.common import config
 from imagekeeper.common import exception
-from imagekeeper.backends import parser as backend_parser
+from imagekeeper.backend import manager as backend_manager
+from imagekeeper.image import manager as image_manager
 
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
-KNOWN_EXCEPTIONS = (RuntimeError,
-                    exception.BadBackendConfiguration,
-                    ValueError)
-
-
-def fail(err):
-    global KNOWN_EXCEPTIONS
-    return_code = KNOWN_EXCEPTIONS.index(type(err)) + 1
-    sys.stderr.write("ERROR: %s\n" % err)
-    sys.exit(return_code)
-
 
 def main():
-    """ImageKeeper main script."""
-    try:
-        config.parse_args(sys.argv)
-        log.setup(CONF, 'imagekeeper')
+    """Imagekeeper main script."""
+    config.parse_args(sys.argv)
+    log.setup(CONF, 'imagekeeper')
 
-        LOG.info('Starting imagekeeper')
+    LOG.info('Starting imagekeeper')
 
-        # Read the content of the backend directory
-        if not os.path.isfile(CONF.cloud_config):
-            raise exception.BackendFileError(
-                cloud_config=CONF.cloud_config,
-            )
-        backend_list = backend_parser.parse(CONF.cloud_config)
-        for backend in backend_list:
-            print("synchronize with %s" % backend['name'])
-    except KNOWN_EXCEPTIONS as err:
-        fail(err)
+    # Read the content of the backend directory
+    if not os.path.isfile(CONF.cloud_config):
+        raise exception.BackendFileNotFound(
+            cloud_config=CONF.cloud_config,
+        )
+    backends = backend_manager.BackendManager(CONF.cloud_config)
+    if not backends:
+        raise exception.NoBackendDefined(
+            cloud_config=CONF.cloud_config,
+        )
+
+    images = image_manager.ImageManager(
+        CONF.image_list, CONF.image_list_format
+    )
+    if not images:
+        raise exception.NoImageFound(
+            image_list=CONF.image_list,
+        )
+    for backend in backends.get_backends():
+        LOG.info("Managing images at %s" % backend['name'])
+        for image in images.get_images():
+            LOG.info(image)
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as err:
+        sys.stderr.write(err.__str__())
+        sys.exit(1)
