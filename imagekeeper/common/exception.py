@@ -103,6 +103,13 @@ class NoImageFound(ImagekeeperException):
                "image: %(exception)s.")
 
 
+class TooManyFormatsFound(ImagekeeperException):
+    """Exception raised when too many formats are found."""
+
+    msg_fmt = ("Image list format %(image_list_format) matches too many "
+               "formats: %(exception)s.")
+
+
 class ImageListFormatNotFound(ImagekeeperException):
     """Exception raised when a image list format is not found."""
 
