@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""Imagekeeper exception subclasses"""
+"""Imagekeeper exception subclasses."""
 
 import sys
 
@@ -97,10 +97,10 @@ class ImageFileNotFound(ImagekeeperException):
 
 
 class NoImageFound(ImagekeeperException):
-    """Exception raised when a backend is not found."""
+    """Exception raised when no image is found in the image file."""
 
-    msg_fmt = ("The backend file %(cloud_config) could not be " +
-               "found: %(exception)s.")
+    msg_fmt = ("The image file %(image_list) does not contain any " +
+               "image: %(exception)s.")
 
 
 class ImageListFormatNotFound(ImagekeeperException):
@@ -114,3 +114,9 @@ class UnknownAuthMethod(ImagekeeperException):
     """Exception raised when the auth method is unknown."""
 
     msg_fmt = "Authentication type %(auth_type) is unknown: %(exception)s."
+
+
+class ClassNotFound(ImagekeeperException):
+    """Exception raised when a class is not found."""
+
+    msg_fmt = "Class %(class_name)s could not be found: %(exception)s."
