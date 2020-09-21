@@ -16,29 +16,32 @@
 
 import os
 
+from oslo_config import cfg
+
 from imagekeeper.common import exception
+from imagekeeper.image import formats
+
+CONF = cfg.CONF
 
 
-class BackendManager(object):
+class ImageListManager(object):
     """A dummy class to manage backends."""
 
-    def __init__(self, cloud_backend_path=None):
+    def __init__(self):
         """Initialize the class."""
-        self.backends = {}
-        if cloud_backend_path:
-            if not os.path.isfile(cloud_backend_path):
-                raise exception.BackendFileNotFound(
-                    cloud_backend_file=cloud_backend_path,
-                )
+        if not os.path.isfile(CONF.image_list_path):
+            raise exception.ImageListFileNotFound(
+                image_list_file=CONF.image_list_path
+            )
+        self.images = {}
+        self.format_cls_map = {}
+        self.format_handler = formats.ImageListFormatHandler()
+        classes = self.format_handler.get_matching_classes(
+            CONF.image_list_format
+        )
+        if len(classes) == 1:
+            self.format_obj = classes[0]()
 
-            # parse config file
-            self._parse_config_file(cloud_backend_path)
-
-    def get_backends(self):
+    def get_images(self):
         """Return the backend list."""
-        return self.backends
-
-    def _parse_config_file(self, cloud_backend_path):
-        """Parse the backend configuration file."""
-        # TODO: Write the parsing function
-        pass
+        return self.images

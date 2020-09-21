@@ -15,7 +15,6 @@
 
 """Starter script for ImageKeeper."""
 
-import os
 import sys
 
 from oslo_config import cfg
@@ -37,24 +36,20 @@ def main():
 
     LOG.info('Starting imagekeeper')
 
-    # Read the content of the backend directory
-    if not os.path.isfile(CONF.cloud_config):
-        raise exception.BackendFileNotFound(
-            cloud_config=CONF.cloud_config,
-        )
-    backends = backend_manager.BackendManager(CONF.cloud_config)
-    if not backends:
-        raise exception.NoBackendDefined(
-            cloud_config=CONF.cloud_config,
-        )
-
-    images = image_manager.ImageManager(
-        CONF.image_list, CONF.image_list_format
-    )
+    # Read the content of the image list
+    images = image_manager.ImageListManager()
     if not images:
         raise exception.NoImageFound(
-            image_list=CONF.image_list,
+            image_list=CONF.image_list_path,
         )
+
+    # Read the content of the cloud backend configuration file
+    backends = backend_manager.BackendManager()
+    if not backends:
+        raise exception.NoBackendDefined(
+            cloud_config=CONF.cloud_backend_file,
+        )
+
     for backend in backends.get_backends():
         LOG.info("Managing images at %s" % backend['name'])
         for image in images.get_images():

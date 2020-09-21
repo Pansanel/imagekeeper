@@ -23,12 +23,12 @@ from imagekeeper import version
 log.register_options(cfg.CONF)
 
 DEFAULT_OPTS = [
-    cfg.StrOpt('cloud_list', default='/etc/imagekeeper/clouds.json',
-               help='JSON file containing the configuration options '
-                    'required to connect to the cloud backends.'),
-    cfg.StrOpt('image_list', default='/etc/imagekeeper/image.list',
-               help='File containing the list of images to synchronize over '
-                    'the clouds.'),
+    cfg.StrOpt('cloud_backend_path', default='/etc/imagekeeper/clouds.json',
+               help='Path to the JSON file containing the configuration '
+                    'options required to connect to the cloud backends.'),
+    cfg.StrOpt('image_list_path', default='/etc/imagekeeper/image.list',
+               help='Path to the file containing the list of images to '
+                    'synchronize over the clouds.'),
     cfg.StrOpt('image_list_format', default='helixnebula',
                help='Format of the image list.'),
     cfg.StrOpt('store_dir', default='/var/lib/imagekeeper',

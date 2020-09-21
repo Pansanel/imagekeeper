@@ -65,7 +65,7 @@ class FunctionNotImplemented(ImagekeeperException):
 class BackendFileNotFound(ImagekeeperException):
     """Exception raised when the backend file is not found."""
 
-    msg_fmt = ("The backend file %(cloud_config) could not be " +
+    msg_fmt = ("The backend file %(backend_file) could not be " +
                "found: %(exception)s.")
 
 
@@ -89,10 +89,10 @@ class BackendConfigurationMissingOption(ImagekeeperException):
                "Required configuration options are missing: %(options).")
 
 
-class ImageFileNotFound(ImagekeeperException):
-    """Exception raised when the image file is not found."""
+class ImageListFileNotFound(ImagekeeperException):
+    """Exception raised when the image list file is not found."""
 
-    msg_fmt = ("The image file %(image_list) could not be " +
+    msg_fmt = ("The image list file %(image_list_file) could not be " +
                "found: %(exception)s.")
 
 
