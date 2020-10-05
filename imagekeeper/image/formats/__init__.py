@@ -16,8 +16,7 @@
 
 from oslo_config import cfg
 
-from imagekeeper.common import exception
-from imagekeeper import loadables
+from imagekeeper import loader
 
 CONF = cfg.CONF
 
@@ -25,16 +24,20 @@ CONF = cfg.CONF
 class BaseFormat(object):
     """Base class for all format classes."""
 
-    def __init__(self):
+    def __init__(self, feature=None):
         """Initialize the class."""
-        pass
+        self.feature = feature
 
     def parse_file(self, filename):
         """Parse an image file."""
-        pass
+        raise NotImplementedError
+
+    def get_feature(self):
+        """Return the name of the format."""
+        return self.feature
 
 
-class ImageListFormatHandler(loadables.BaseLoader):
+class ImageListFormatHandler(loader.PluginLoader):
     """Base class to handle loading image format classes.
 
     This class should be subclassed where one needs to use formats.
@@ -42,27 +45,19 @@ class ImageListFormatHandler(loadables.BaseLoader):
 
     def __init__(self):
         """Initialize the class."""
-        super(ImageListFormatHandler, self).__init__(BaseFormat)
-        self.format_handler = None
+        super(ImageListFormatHandler, self).__init__(
+            'imagekeeper.image.formats', BaseFormat
+        )
 
-    def _load_format_handler(self):
+    def load_handler(self):
         """Load the format handler for the image list.
 
         The get_matching_classes function takes a list as argument and
         return a list. This function verify that only one classe
         matches the format.
         """
-        matching_classes = self.get_matching_classes(CONF.image_list_format)
-        if len(matching_classes) > 1:
-            raise exception.TooManyFormatsFound()
-        else:
-            self.format_handler = matching_classes[0]()
-
-
-def all_formats():
-    """Return a list of format classes found in this directory.
-
-    This method is used as the default for available image formats
-    abd should return a list of all image format available.
-    """
-    return ImageListFormatHandler().get_all_classes()
+        format_handler = None
+        format_classes = self._get_all_classes()
+        if CONF.image_list_format in format_classes.keys():
+            format_handler = format_classes[CONF.image_list_format]
+        return format_handler

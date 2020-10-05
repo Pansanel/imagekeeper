@@ -1,4 +1,4 @@
-# Copyright 2019 CNRS and University of Strasbourg
+# Copyright 2020 CNRS and University of Strasbourg
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -12,31 +12,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""Class for managing backends."""
+"""Plugin for Helix Nebula based image list format."""
 
-import os
-
-from oslo_config import cfg
-
-from imagekeeper.common import exception
 from imagekeeper.image import formats
 
-CONF = cfg.CONF
 
-
-class ImageListManager(object):
-    """A dummy class to manage backends."""
+class HelixNebula(formats.BaseFormat):
+    """HelixNebula Format class."""
 
     def __init__(self):
         """Initialize the class."""
-        if not os.path.isfile(CONF.image_list_path):
-            raise exception.ImageListFileNotFound(
-                image_list_file=CONF.image_list_path
-            )
-        self.images = {}
-        self.format_cls_map = {}
-        self.format_handler = formats.ImageListFormatHandler()
+        super(HelixNebula, self).__init__('helixnebula')
 
-    def get_images(self):
-        """Return the backend list."""
-        return self.images
+    def parse_file(self, filename):
+        """Parse an image file."""
+        pass
