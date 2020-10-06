@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Example",
+    "type": "openstack",
+    "parameters": {
+      "endpoint": "https://controller:5000",
+      "username": "demo",
+      "password": "demo",
+      "project_name": "demo",
+      "project_domain_name": "Default",
+      "user_domaine_name": "Default"
+    }
+  }
+]
