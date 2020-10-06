@@ -16,7 +16,7 @@
 
 from oslo_config import cfg
 
-from imagekeeper import loader
+from imagekeeper import pluginloader
 
 CONF = cfg.CONF
 
@@ -37,11 +37,8 @@ class BaseFormat(object):
         return self.feature
 
 
-class ImageListFormatHandler(loader.PluginLoader):
-    """Base class to handle loading image format classes.
-
-    This class should be subclassed where one needs to use formats.
-    """
+class ImageListFormatHandler(pluginloader.PluginLoader):
+    """Base class to handle loading image format classes."""
 
     def __init__(self):
         """Initialize the class."""
@@ -49,15 +46,10 @@ class ImageListFormatHandler(loader.PluginLoader):
             'imagekeeper.image.formats', BaseFormat
         )
 
-    def load_handler(self):
-        """Load the format handler for the image list.
-
-        The get_matching_classes function takes a list as argument and
-        return a list. This function verify that only one classe
-        matches the format.
-        """
+    def load_handler(self, class_type):
+        """Load the format handler for the image list."""
         format_handler = None
         format_classes = self._get_all_classes()
-        if CONF.image_list_format in format_classes.keys():
-            format_handler = format_classes[CONF.image_list_format]
+        if class_type in format_classes.keys():
+            format_handler = format_classes[class_type]
         return format_handler

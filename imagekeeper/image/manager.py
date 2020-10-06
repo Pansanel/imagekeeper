@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""Class for managing backends."""
+"""Class for managing an image list."""
 
 import os
 
@@ -25,7 +25,7 @@ CONF = cfg.CONF
 
 
 class ImageListManager(object):
-    """A dummy class to manage backends."""
+    """A class for managing an image list."""
 
     def __init__(self):
         """Initialize the class."""
@@ -36,6 +36,13 @@ class ImageListManager(object):
         self.images = {}
         self.format_cls_map = {}
         self.format_handler = formats.ImageListFormatHandler()
+
+    def _parse_image_list(self):
+        """Parse the image list."""
+        image_list_handler = self.format_handler.load_handler(
+            CONF.image_list_format
+        )
+        return image_list_handler
 
     def get_images(self):
         """Return the backend list."""

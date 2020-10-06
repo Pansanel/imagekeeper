@@ -75,7 +75,7 @@ class PluginLoader(object):
                 classes[correct_class.get_feature()] = correct_class
         return classes
 
-    def load_handler(self):
+    def load_handler(self, class_type):
         """Load the handler."""
         raise NotImplementedError
 

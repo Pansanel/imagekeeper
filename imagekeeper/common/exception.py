@@ -69,6 +69,13 @@ class BackendFileNotFound(ImagekeeperException):
                "found: %(exception)s.")
 
 
+class InvalidBackendFile(ImagekeeperException):
+    """Exception raised when the backend file is invalid."""
+
+    msg_fmt = ("The backend file %(backend_file) is invalid " +
+               "%(exception)s.")
+
+
 class NoBackendDefined(ImagekeeperException):
     """Exception raised when no backend is defined."""
 
