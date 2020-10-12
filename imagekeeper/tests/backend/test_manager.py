@@ -12,17 +12,21 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""OpenStack backend test class
-"""
+"""Backend Manager test class."""
 
-from imagekeeper.backend import openstack
+from imagekeeper.backend import manager
 from imagekeeper.tests import base
 
 
-class TestOpenStackBackend(base.TestCase):
-    """Test OpenStack backend
-    """
-    def test_convert_ram(self):
-        """Test the conver_ram function
-        """
-        self.assertEqual(1, utils.convert_ram(1048576))
+class TestBackendManager(base.TestCase):
+    """Test OpenStack backend."""
+
+    def test_get_backend_type(self):
+        """Test the conver_ram function."""
+        backend_manager = manager.BackendManager()
+        self.assertIsInstance(backend_manager, list)
+
+    def test_get_backends_values(self):
+        """Test the conver_ram function."""
+        backend_manager = manager.BackendManager()
+        self.assertEqual(1, len(backend_manager.get_backends()))
