@@ -12,24 +12,22 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""OpenStack backend test class
-"""
+"""OpenStack backend test class."""
 
 import six
 
-from imagekeeper import exception
+from imagekeeper.common import exception
 from imagekeeper.tests import base
 
 
 class TestImageKeeperException(base.TestCase):
-    """Test ImageKeeper Exception
-    """
+    """Test ImageKeeper Exception."""
+
     def test_default_error_msg(self):
-        """Test the error class with a fake exception
-        """
+        """Test the error class with a fake exception."""
         class FakeImagekeeperException(exception.ImagekeeperException):
-            """A fake exception class
-            """
+            """A fake exception class."""
+
             message = "default message"
 
         exc = FakeImagekeeperException()

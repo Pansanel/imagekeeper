@@ -12,17 +12,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""Utils test class
-"""
+"""Utils test class."""
 
 from imagekeeper.common import utils
 from imagekeeper.tests import base
 
 
 class TestUtils(base.TestCase):
-    """Test utils module
-    """
+    """Test utils module."""
+
     def test_convert_ram(self):
-        """Test the conver_ram function
-        """
+        """Test the conver_ram function."""
         self.assertEqual(1, utils.convert_ram(1048576))
